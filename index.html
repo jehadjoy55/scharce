@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Premium Web Browser</title>
+    <title>Premium Web Browser with Custom Wallpaper</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
@@ -23,9 +23,25 @@
         .search-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
+        .iframe-container {
+            margin-top: 20px;
+            width: 100%;
+            height: 80vh;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .upload-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            margin-top: 10px;
+        }
+        .upload-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex flex-col items-center justify-center min-h-screen">
     <div class="text-center p-8 rounded-lg shadow-lg bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg">
         <h1 class="text-4xl font-bold mb-6">Premium Web Browser</h1>
         <input type="text" id="searchQuery" placeholder="Enter your search query"
@@ -40,7 +56,9 @@
                 Search with DuckDuckGo
             </button>
         </div>
+        <input type="file" id="wallpaperUpload" accept="image/*" class="upload-button w-full max-w-md p-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
     </div>
+    <iframe id="resultFrame" class="iframe-container"></iframe>
 
     <script>
         function search(engine) {
@@ -52,8 +70,19 @@
             } else if (engine === 'duckduckgo') {
                 url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
             }
-            window.open(url, '_blank');
+            document.getElementById('resultFrame').src = url;
         }
+
+        document.getElementById('wallpaperUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>
