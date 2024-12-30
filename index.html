@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Web Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Web Browser</h1>
+    <input type="text" id="searchQuery" placeholder="Enter your search query">
+    <br>
+    <button onclick="search('google')">Search with Google</button>
+    <button onclick="search('duckduckgo')">Search with DuckDuckGo</button>
+
+    <script>
+        function search(engine) {
+            const query = document.getElementById('searchQuery').value;
+            let url = '';
+            if (engine === 'google') {
+                url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            } else if (engine === 'duckduckgo') {
+                url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+            }
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
