@@ -23,13 +23,25 @@
         .search-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
-        .iframe-container {
+        .results-container {
             margin-top: 20px;
             width: 100%;
-            height: 80vh;
-            border: none;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 10px;
+            padding: 20px;
             overflow: hidden;
+        }
+        .result-item {
+            margin-bottom: 15px;
+        }
+        .result-item a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        .result-item a:hover {
+            text-decoration: underline;
         }
         .upload-button {
             background-color: rgba(255, 255, 255, 0.2);
@@ -46,31 +58,41 @@
         <h1 class="text-4xl font-bold mb-6">Premium Web Browser</h1>
         <input type="text" id="searchQuery" placeholder="Enter your search query"
                class="search-input w-full max-w-md p-4 mb-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <div>
-            <button onclick="search('google')"
-                    class="search-button w-full max-w-md p-4 mb-2 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Search with Google
-            </button>
-            <button onclick="search('duckduckgo')"
-                    class="search-button w-full max-w-md p-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Search with DuckDuckGo
-            </button>
-        </div>
-        <input type="file" id="wallpaperUpload" accept="image/*" class="upload-button w-full max-w-md p-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button onclick="search()"
+                class="search-button w-full max-w-md p-4 mb-2 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Search
+        </button>
+        <input type="file" id="wallpaperUpload" accept="image/*"
+               class="upload-button w-full max-w-md p-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
     </div>
-    <iframe id="resultFrame" class="iframe-container"></iframe>
+    <div id="results" class="results-container"></div>
 
     <script>
-        function search(engine) {
+        function search() {
             const query = document.getElementById('searchQuery').value;
             if (!query) return;
-            let url = '';
-            if (engine === 'google') {
-                url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-            } else if (engine === 'duckduckgo') {
-                url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-            }
-            document.getElementById('resultFrame').src = url;
+            const apiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&pretty=1`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsContainer = document.getElementById('results');
+                    resultsContainer.innerHTML = '';
+                    if (data.RelatedTopics.length > 0) {
+                        data.RelatedTopics.forEach(topic => {
+                            if (topic.FirstURL && topic.Text) {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'result-item';
+                                resultItem.innerHTML = `<a href="${topic.FirstURL}" target="_blank">${topic.Text}</a>`;
+                                resultsContainer.appendChild(resultItem);
+                            }
+                        });
+                    } else {
+                        resultsContainer.innerHTML = '<p>No results found.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                });
         }
 
         document.getElementById('wallpaperUpload').addEventListener('change', function(event) {
@@ -79,6 +101,8 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.body.style.backgroundImage = `url(${e.target.result})`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
                 };
                 reader.readAsDataURL(file);
             }
